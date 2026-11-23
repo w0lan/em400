@@ -40,7 +40,7 @@ To build and run em400 you'll need:
 
 * cmake
 * a build tool (GNU make or ninja)
-* bison and flex
+* bison (3.6 or newer) and flex
 * Qt6 (used by qt ui)
 * libemdas (deassembler library)
 * libemcrk (CROOK memory structures)

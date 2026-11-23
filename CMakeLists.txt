@@ -17,7 +17,7 @@ include(cmake/appversion.cmake)
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBUV REQUIRED IMPORTED_TARGET libuv)
-find_package(BISON REQUIRED)
+find_package(BISON 3.6 REQUIRED)
 find_package(FLEX REQUIRED)
 find_package(Threads REQUIRED)
 find_package(emdas REQUIRED)
