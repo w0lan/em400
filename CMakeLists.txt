@@ -25,7 +25,9 @@ find_package(emcrk 0.2 REQUIRED)
 find_package(emawp 3.0 REQUIRED)
 if(NOT WIN32)
 	find_library(MATH_LIBRARY m)
-	find_library(RT_LIBRARY rt)
+	if(NOT APPLE)
+		find_library(RT_LIBRARY rt)
+	endif()
 endif()
 
 # --- IPO support
