@@ -23,6 +23,7 @@
 // Sleep until the absolute CLOCK_MONOTONIC deadline in *deadline.
 // On Windows this replaces winpthreads clock_nanosleep, which rejects any
 // non-CLOCK_REALTIME clock with EINVAL up front (returns without sleeping).
+// On macOS, which has no clock_nanosleep(), it is built on nanosleep().
 void compat_sleep_until(const struct timespec *deadline);
 
 #endif // COMPAT_TIME_H

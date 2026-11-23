@@ -70,6 +70,28 @@ void compat_sleep_until(const struct timespec *deadline)
 	WaitForSingleObject(htimer, INFINITE);
 }
 
+#elif defined(__APPLE__)
+
+#include <errno.h>
+#include <stdint.h>
+
+// -----------------------------------------------------------------------
+// macOS has no clock_nanosleep(): turn the absolute deadline into a relative
+// nanosleep(), recomputed after EINTR.
+void compat_sleep_until(const struct timespec *deadline)
+{
+	struct timespec now, rel;
+	while (1) {
+		clock_gettime(CLOCK_MONOTONIC, &now);
+		int64_t rel_ns = ((int64_t)deadline->tv_sec  - (int64_t)now.tv_sec)  * 1000000000LL
+		               + ((int64_t)deadline->tv_nsec - (int64_t)now.tv_nsec);
+		if (rel_ns <= 0) return;
+		rel.tv_sec = rel_ns / 1000000000LL;
+		rel.tv_nsec = rel_ns % 1000000000LL;
+		if (nanosleep(&rel, NULL) == 0 || errno != EINTR) return;
+	}
+}
+
 #else
 
 #include <errno.h>
