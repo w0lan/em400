@@ -83,6 +83,8 @@ set(SOURCES_EM400
 	src/utils/elst.h
 	src/utils/compat_time.c
 	src/utils/compat_time.h
+	src/utils/compat_thread.c
+	src/utils/compat_thread.h
 	#src/utils/serial.c
 	#src/utils/serial.h
 

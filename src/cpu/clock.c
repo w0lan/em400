@@ -28,6 +28,7 @@
 #include "cpu/interrupts.h"
 #include "cp/cp.h"
 #include "utils/compat_time.h"
+#include "utils/compat_thread.h"
 
 #include "log.h"
 
@@ -43,6 +44,10 @@ static atomic_uint clock_int;
 // -----------------------------------------------------------------------
 static void * clock_thread(void *ptr)
 {
+	if (compat_thread_setname("clock")) {
+		LOG(L_CPU, "Failed to set CPU timer (clock) thread name.");
+	}
+
 	struct timespec ts;
 	long clock_tick_nsec = clock_period * 1000000L;
 	long new_nsec;
@@ -92,9 +97,6 @@ int clock_init(unsigned period_ms)
 
 	if (pthread_create(&clock_th, NULL, clock_thread, NULL)) {
 		return LOGERR("Failed to spawn CPU timer (clock) thread.");
-	}
-	if (pthread_setname_np(clock_th, "clock")) {
-		LOG(L_CPU, "Failed to set CPU timer (clock) thread name.");
 	}
 
 	clock_initialized = true;

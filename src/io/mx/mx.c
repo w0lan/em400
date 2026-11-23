@@ -28,6 +28,7 @@
 
 #include "log.h"
 #include "utils/elst.h"
+#include "utils/compat_thread.h"
 #include "io/io.h"
 #include "io/chan.h"
 #include "io/mx/mx.h"
@@ -184,10 +185,6 @@ chan_t * mx_create(int ch_num)
 		LOGERR("Channel %i: failed to spawn event processor thread.", ch_num);
 		goto cleanup;
 	}
-
-	char name[16];
-	snprintf(name, 15, "mxev%02i", multix->base.num);
-	pthread_setname_np(multix->ev_thread, name);
 
 	LOG(L_MX, "MULTIX created");
 
@@ -376,6 +373,12 @@ static void mx_int_push(chan_mx_t *multix)
 }
 
 // -----------------------------------------------------------------------
+int mx_chan_num(chan_mx_t *multix)
+{
+	return multix->base.num;
+}
+
+// -----------------------------------------------------------------------
 int mx_int_enqueue(chan_mx_t *multix, int intr, int line)
 {
 	LOG(L_MX, "Enqueue interrupt %i (%s), line %i", intr, mx_irq_name(intr), line);
@@ -523,18 +526,13 @@ static int mx_line_conf_log(chan_mx_t *multix, int phy_n, int log_n, uint16_t *d
 
 	elst_clear(pline->protoq);
 
-	char thname[16];
-	snprintf(thname, 15, "mxl%02i:%02i", multix->base.num, pline->log_n);
 	if (pthread_create(&pline->proto_th, NULL, mx_line_thread, pline)) {
 		return MX_SC_E_NOMEM;
 	}
-	pthread_setname_np(pline->proto_th, thname);
 
-	snprintf(thname, 15, "mxs%02i:%02i", multix->base.num, pline->log_n);
 	if (pthread_create(&pline->status_th, NULL, mx_line_status_thread, pline)) {
 		return MX_SC_E_NOMEM;
 	}
-	pthread_setname_np(pline->status_th, thname);
 
 	return MX_SC_E_OK;
 }
@@ -856,6 +854,10 @@ static void * mx_event_loop(void *ptr)
 {
 	bool quit;
 	chan_mx_t *multix = (chan_mx_t *) ptr;
+
+	char name[16];
+	snprintf(name, 15, "mxev%02i", multix->base.num);
+	compat_thread_setname(name);
 
 	quit = mx_init_dummy(multix);
 

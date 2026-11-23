@@ -23,6 +23,7 @@
 #include "io/mx/cmds.h"
 #include "io/mx/event.h"
 #include "utils/elst.h"
+#include "utils/compat_thread.h"
 #include "log.h"
 
 #define MAX_CMD_DATA_LEN 16
@@ -277,6 +278,10 @@ void * mx_line_thread(void *ptr)
 	int quit = 0;
 	struct mx_line *line = (struct mx_line *) ptr;
 
+	char thname[16];
+	snprintf(thname, 15, "mxl%02i:%02i", mx_chan_num(line->multix), line->log_n);
+	compat_thread_setname(thname);
+
 	LOG(L_MX, "Entering line %i protocol loop, device: %s", line->log_n, line->proto->name);
 
 	while (!quit) {
@@ -333,6 +338,10 @@ void * mx_line_status_thread(void *ptr)
 {
 	int quit = 0;
 	struct mx_line *line = (struct mx_line *) ptr;
+
+	char thname[16];
+	snprintf(thname, 15, "mxs%02i:%02i", mx_chan_num(line->multix), line->log_n);
+	compat_thread_setname(thname);
 
 	LOG(L_MX, "Entering line %i status loop", line->log_n);
 

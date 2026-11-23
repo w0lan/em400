@@ -34,6 +34,7 @@
 
 #include "libem400.h"
 #include "utils/utils.h"
+#include "utils/compat_thread.h"
 #include "log.h"
 
 bool io_started;
@@ -62,6 +63,10 @@ static void io_ioloop_on_async_quit(uv_async_t *handle)
 // -----------------------------------------------------------------------
 static void * io_ioloop(void *ptr)
 {
+	if (compat_thread_setname("ioloop")) {
+		LOG(L_IO, "Failed to set I/O thread name");
+	}
+
 	LOG(L_IO, "Starting UV loop");
 	uv_run(ioloop, UV_RUN_DEFAULT);
 	LOG(L_IO, "Exited UV loop");
@@ -106,9 +111,6 @@ int io_run()
 
 	if (pthread_create(&ioloop_thread, NULL, io_ioloop, NULL)) {
 		return LOGERR("Failed to spawn main I/O loop thread.");
-	}
-	if (pthread_setname_np(ioloop_thread, "ioloop")) {
-		LOG(L_IO, "Failed to set I/O thread name");
 	}
 
 	io_started = true;
