@@ -106,6 +106,12 @@ chan_t * cchar_create(int ch_num)
 	chan->base.shutdown = cchar_shutdown;
 	chan->base.connect_dev = cchar_connect_dev;
 
+	if (pthread_mutex_init(&chan->int_mutex, NULL)) {
+		LOGERR("Channel %i: failed to initialize interrupt mutex.", ch_num);
+		free(chan);
+		return NULL;
+	}
+
 	chan->interrupting_device = NO_INTERRUPT_REPORTED;
 
 	return (chan_t *) chan;
@@ -128,6 +134,7 @@ void cchar_shutdown(chan_t *chan)
 	}
 
 	LOG(L_CCHR, "All units shut down in character channel %i", chan->num);
+	pthread_mutex_destroy(&ch->int_mutex);
 	free(chan);
 }
 
