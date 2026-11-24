@@ -372,6 +372,9 @@ else()
 		${MATH_LIBRARY}
 	)
 endif()
+if(APPLE)
+	set_property(TARGET em400 PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)
+endif()
 
 # miniaudio: silence -Wall noise in the vendored implementation TU, and link
 # libdl on Linux so its runtime loader for ALSA/PulseAudio/JACK works.
