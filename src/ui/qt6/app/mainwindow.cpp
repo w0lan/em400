@@ -209,6 +209,10 @@ void MainWindow::wire_connections()
 	connect(ui->actionDebugger, &QAction::toggled, this, &MainWindow::slot_debugger_enabled_changed);
 
 	menu_devices = menuBar()->addMenu(tr("Devices"));
+#ifdef Q_OS_MACOS
+	// Populate the menu initially so it can appear in the macOS menu bar.
+	populate_devices_menu(menu_devices);
+#endif
 	connect(menu_devices, &QMenu::aboutToShow, this, [this]() {
 		menu_devices->clear();
 		populate_devices_menu(menu_devices);
