@@ -36,6 +36,7 @@
 
 #include "utils/utils.h"
 #include "utils/compat_time.h"
+#include "utils/compat_thread.h"
 #include "cpu/cpu.h"
 #include "cpu/interrupts.h"
 #include "mem/mem.h"
@@ -372,9 +373,6 @@ int cpu_init(const struct em400_host_cfg *host, const struct em400_machine_cfg *
 	if (pthread_create(&cpu_thread, NULL, cpu_loop, NULL)) {
 		LOGERR("Failed to spawn the CPU thread.");
 		goto fail;
-	}
-	if (pthread_setname_np(cpu_thread, "cpu")) {
-		LOG(L_CPU, "Could not set CPU thread name");
 	}
 
 	cpu_initialized = true;
@@ -851,6 +849,10 @@ static void cpu_timekeeping(int cpu_time_ns)
 // -----------------------------------------------------------------------
 __attribute__((hot)) static void * cpu_loop(void *ptr)
 {
+	if (compat_thread_setname("cpu")) {
+		LOG(L_CPU, "Could not set CPU thread name");
+	}
+
 	LOG(L_CPU, "Starting CPU loop");
 	bool quit = false;
 	cpu_pacing_reset();

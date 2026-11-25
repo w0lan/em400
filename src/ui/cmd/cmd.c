@@ -17,6 +17,7 @@
 
 #define _POSIX_C_SOURCE 200112L
 #define __BSD_VISIBLE 1 /* for INADDR_LOOPBACK */
+#define _DARWIN_C_SOURCE
 
 #include <stdbool.h>
 #include <stdlib.h>

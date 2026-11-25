@@ -30,6 +30,7 @@
 #include "io/io.h"
 #include "io/chan.h"
 #include "utils/elst.h"
+#include "utils/compat_thread.h"
 
 #define INIT_DELAY_US 200000
 
@@ -133,12 +134,6 @@ chan_t * it_create(int chnum)
 		return NULL;
 	}
 
-	char name[16];
-	snprintf(name, sizeof(name), "iotest%02i", it->base.num);
-	if (pthread_setname_np(it->thread, name)) {
-		LOG(L_IO, "Channel %i: failed to set iotester thread name", chnum);
-	}
-
 	LOG(L_IO, "Channel %i: I/O tester created", chnum);
 
 	return (chan_t *) it;
@@ -204,6 +199,12 @@ static void * it_cmdproc(void *ptr)
 {
 	int quit = 0;
 	struct iotester *it = (struct iotester *) ptr;
+
+	char name[16];
+	snprintf(name, sizeof(name), "iotest%02i", it->base.num);
+	if (compat_thread_setname(name)) {
+		LOG(L_IO, "Channel %i: failed to set iotester thread name", it->base.num);
+	}
 
 	LOG(L_IO, "Entering main I/O tester loop");
 

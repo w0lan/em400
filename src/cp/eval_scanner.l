@@ -46,6 +46,7 @@ static int scan_value(const char *s, int base)
 
 %top{
 	#define _XOPEN_SOURCE 500
+	#define _DARWIN_C_SOURCE
 }
 
 %option nounput

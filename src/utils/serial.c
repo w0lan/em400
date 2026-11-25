@@ -29,6 +29,10 @@
 // -----------------------------------------------------------------------
 speed_t serial_int2speed(int s)
 {
+#ifdef __APPLE__
+	// speed_t is the baud rate itself, B* constants above B230400 are missing
+	return (s > 0) ? s : 0;
+#else
 	struct a_speeds {
 		int speed_i;
 		speed_t speed_s;
@@ -74,6 +78,7 @@ speed_t serial_int2speed(int s)
 	}
 
 	return sp->speed_s;
+#endif
 }
 
 // -----------------------------------------------------------------------

@@ -17,7 +17,7 @@ include(cmake/appversion.cmake)
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBUV REQUIRED IMPORTED_TARGET libuv)
-find_package(BISON REQUIRED)
+find_package(BISON 3.6 REQUIRED)
 find_package(FLEX REQUIRED)
 find_package(Threads REQUIRED)
 find_package(emdas REQUIRED)
@@ -25,7 +25,9 @@ find_package(emcrk 0.2 REQUIRED)
 find_package(emawp 3.0 REQUIRED)
 if(NOT WIN32)
 	find_library(MATH_LIBRARY m)
-	find_library(RT_LIBRARY rt)
+	if(NOT APPLE)
+		find_library(RT_LIBRARY rt)
+	endif()
 endif()
 
 # --- IPO support
@@ -81,6 +83,8 @@ set(SOURCES_EM400
 	src/utils/elst.h
 	src/utils/compat_time.c
 	src/utils/compat_time.h
+	src/utils/compat_thread.c
+	src/utils/compat_thread.h
 	#src/utils/serial.c
 	#src/utils/serial.h
 
@@ -367,6 +371,9 @@ else()
 		${RT_LIBRARY}
 		${MATH_LIBRARY}
 	)
+endif()
+if(APPLE)
+	set_property(TARGET em400 PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)
 endif()
 
 # miniaudio: silence -Wall noise in the vendored implementation TU, and link
